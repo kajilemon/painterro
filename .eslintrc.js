@@ -23,6 +23,7 @@ module.exports = {
     'no-console': ["error", { allow: ["warn", "error"] }],
      // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
-    'import/no-extraneous-dependencies': ["error", {"devDependencies": true}]
+    'import/no-extraneous-dependencies': ["error", {"devDependencies": true}],
+    'linebreak-style': ["error", "windows"]
   }
 };

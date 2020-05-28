@@ -394,6 +394,7 @@ class PainterroProc {
       this.holderEl = document.createElement('div');
       this.holderEl.id = this.holderId;
       this.holderEl.className = 'ptro-holder-wrapper';
+      this.holderEl.style = 'z-index: 100;';
       document.body.appendChild(this.holderEl);
       this.holderEl.innerHTML = `<div id='${this.id}' class="ptro-holder"></div>`;
       this.baseEl = document.getElementById(this.id);
@@ -429,9 +430,10 @@ class PainterroProc {
     this.wrapper.className = 'ptro-wrapper';
     this.wrapper.innerHTML =
       '<div class="ptro-scroller">' +
-        '<div class="ptro-center-table">' +
-          '<div class="ptro-center-tablecell">' +
-            `<canvas id="${this.id}-canvas"></canvas>` +
+        '<div class="ptro-center-table" style="position: relative;">' +
+          '<div class="ptro-center-tablecell" style="position: relative;">' +
+            `<canvas id="${this.id}-base-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto;"></canvas>` +
+            `<canvas id="${this.id}-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto;"></canvas>` +
             `<div class="ptro-substrate"></div>${cropper}` +
           '</div>' +
         '</div>' +
@@ -473,7 +475,9 @@ class PainterroProc {
     }
     this.body = this.doc.body;
     this.info = this.doc.querySelector(`#${this.id}-bar .ptro-info`);
+    this.baseCanvas = this.doc.querySelector(`#${this.id}-base-canvas`);
     this.canvas = this.doc.querySelector(`#${this.id}-canvas`);
+    this.baseCtx = this.baseCanvas.getContext('2d');
     this.ctx = this.canvas.getContext('2d');
     this.toolControls = this.doc.querySelector(`#${this.id}-bar .tool-controls`);
     this.toolContainer = this.doc.querySelector(`#${this.id}-wrapper .ptro-crp-el`);
@@ -961,19 +965,22 @@ class PainterroProc {
     return this.toolContainer.documentOffsetTop + this.scroller.scrollTop;
   }
 
-  fitImage(img) {
+  fitImage(img, img2) {
     this.resize(img.naturalWidth, img.naturalHeight);
-    this.ctx.drawImage(img, 0, 0);
+    this.baseCtx.drawImage(img, 0, 0);
+    if (img2) {
+      this.ctx.drawImage(img2, 0, 0);
+    }
     this.zoomFactor = (this.wrapper.documentClientHeight / this.size.h) - 0.2;
     this.adjustSizeFull();
     this.worklog.captureState();
   }
 
-  loadImage(source) {
-    this.inserter.handleOpen(source);
+  loadImage(source, source2) {
+    this.inserter.handleOpen(source, source2);
   }
 
-  show(openImage) {
+  show(openImage, openImage2) {
     this.shown = true;
     this.scrollWidth = getScrollbarWidth();
     if (this.isMobile) {
@@ -990,7 +997,7 @@ class PainterroProc {
       this.loadedName = trim(
         (openImage.substring(openImage.lastIndexOf('/') + 1) || '').replace(/\..+$/, ''));
 
-      this.loadImage(openImage);
+      this.loadImage(openImage, openImage2);
     } else if (openImage !== false) {
       this.clear();
     }
@@ -1033,21 +1040,29 @@ class PainterroProc {
         const newRelation = ratio < this.size.ratio;
         this.ratioRelation = newRelation;
         if (newRelation) {
+          this.baseCanvas.style.width = `${this.wrapper.clientWidth}px`;
+          this.baseCanvas.style.height = 'auto';
           this.canvas.style.width = `${this.wrapper.clientWidth}px`;
           this.canvas.style.height = 'auto';
         } else {
+          this.baseCanvas.style.width = 'auto';
+          this.baseCanvas.style.height = `${this.wrapper.clientHeight}px`;
           this.canvas.style.width = 'auto';
           this.canvas.style.height = `${this.wrapper.clientHeight}px`;
         }
         this.scroller.style.overflow = 'hidden';
       } else {
         this.scroller.style.overflow = 'hidden';
+        this.baseCanvas.style.width = 'auto';
+        this.baseCanvas.style.height = 'auto';
         this.canvas.style.width = 'auto';
         this.canvas.style.height = 'auto';
         this.ratioRelation = 0;
       }
     } else {
       this.scroller.style.overflow = 'scroll';
+      this.baseCanvas.style.width = `${this.size.w * this.zoomFactor}px`;
+      this.baseCanvas.style.height = `${this.size.h * this.zoomFactor}px`;
       this.canvas.style.width = `${this.size.w * this.zoomFactor}px`;
       this.canvas.style.height = `${this.size.h * this.zoomFactor}px`;
       this.ratioRelation = 0;
@@ -1063,6 +1078,8 @@ class PainterroProc {
       h: y,
       ratio: x / y,
     };
+    this.baseCanvas.setAttribute('width', this.size.w);
+    this.baseCanvas.setAttribute('height', this.size.h);
     this.canvas.setAttribute('width', this.size.w);
     this.canvas.setAttribute('height', this.size.h);
   }
@@ -1116,16 +1133,17 @@ class PainterroProc {
       }).then((can) => {
         this.scroller.removeChild(div);
         this.ctx.drawImage(can, 0, 0);
+        this.baseCtx.drawImage(can, 0, 0);
       });
     }
   }
 
   clearBackground() {
-    this.ctx.beginPath();
-    this.ctx.clearRect(0, 0, this.size.w, this.size.h);
-    this.ctx.rect(0, 0, this.size.w, this.size.h);
-    this.ctx.fillStyle = this.currentBackground;
-    this.ctx.fill();
+    this.baseCtx.beginPath();
+    this.baseCtx.clearRect(0, 0, this.size.w, this.size.h);
+    this.baseCtx.rect(0, 0, this.size.w, this.size.h);
+    this.baseCtx.fillStyle = this.currentBackground;
+    this.baseCtx.fill();
   }
 
   setActiveTool(b) {

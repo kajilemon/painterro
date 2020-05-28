@@ -7,8 +7,8 @@ export default class Inserter {
     this.pasteOptions = {
       replace_all: {
         internalName: 'fit',
-        handle: (img) => {
-          this.main.fitImage(img);
+        handle: (img, img2) => {
+          this.main.fitImage(img, img2);
         },
       },
       extend_down: {
@@ -82,19 +82,20 @@ export default class Inserter {
 
   init(main) {
     this.CLIP_DATA_MARKER = 'painterro-image-data';
-    this.ctx = main.ctx;
+    this.ctx = main.baseCtx;
     this.main = main;
     this.worklog = main.worklog;
     this.selector = main.wrapper.querySelector('.ptro-paster-select-wrapper');
     this.cancelChoosing();
     this.img = null;
+    this.img2 = null;
     Object.keys(this.pasteOptions).forEach((k) => {
       const o = this.pasteOptions[k];
       this.main.doc.getElementById(o.id).onclick = () => {
         if (this.loading) {
           this.doLater = o.handle;
         } else {
-          o.handle(this.img);
+          o.handle(this.img, this.img2);
         }
         this.cancelChoosing();
       };
@@ -113,33 +114,38 @@ export default class Inserter {
     this.waitChoice = false;
   }
 
-  loaded(img) {
+  loaded(img, img2) {
     this.img = img;
+    this.img2 = img2;
     this.loading = false;
     if (this.doLater) {
-      this.doLater(img);
+      this.doLater(img, img2);
       this.doLater = null;
     }
   }
 
-  handleOpen(src) {
+  handleOpen(src, src2) {
     this.startLoading();
-    const handleIt = (source) => {
+    const handleIt = (source, source2) => {
       const img = new Image();
+      const img2 = new Image();
       const empty = this.main.worklog.clean;
       img.onload = () => {
         if (empty) {
-          this.main.fitImage(img);
+          this.main.fitImage(img, img2);
         } else {
-          this.loaded(img);
+          this.main.fitImage(img, img2);
+          this.loaded(img, img2);
         }
         this.finishLoading();
       };
       img.src = source;
+      img2.src = source2;
       if (!empty) {
         if (Object.keys(this.activeOption).length !== 1) {
-          this.selector.removeAttribute('hidden');
-          this.waitChoice = true;
+          // this.selector.removeAttribute('hidden');
+          // this.waitChoice = true;
+          this.main.fitImage(img, img2);
         } else {
           this.doLater = this.activeOption[Object.keys(this.activeOption)[0]].handle;
         }
@@ -148,11 +154,11 @@ export default class Inserter {
 
     if (src.indexOf('data') !== 0) {
       imgToDataURL(src, (dataUrl) => { // if CORS will not allow,
-        // better see error in console than have different canvas mode
-        handleIt(dataUrl);
+      // better see error in console than have different canvas mode
+        handleIt(dataUrl, null);
       });
     } else {
-      handleIt(src);
+      handleIt(src, src2);
     }
   }
 
