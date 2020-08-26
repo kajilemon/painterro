@@ -1,4 +1,4 @@
-'use strict';
+// 'use strict';
 const path = require('path');
 const webpack = require('webpack');
 require('es6-promise').polyfill();
@@ -34,7 +34,7 @@ function webpackConfig(target) {
           test: /\.js$/,
           loader: 'babel-loader',
           query: {
-            presets: ['es2015', 'es2016']
+            presets: ['es2015', 'es2016'],
           }
         },
         {

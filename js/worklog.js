@@ -5,6 +5,7 @@ export default class WorkLog {
     this.changedHandler = changedHandler;
     this.empty = true;
     this.clean = true;
+    this.baseCtx = main.baseCtx;
     this.ctx = main.ctx;
   }
 
@@ -60,6 +61,7 @@ export default class WorkLog {
     const state = {
       sizew: this.main.size.w,
       sizeh: this.main.size.h,
+      baseData: this.baseCtx.getImageData(0, 0, this.main.size.w, this.main.size.h),
       data: this.ctx.getImageData(0, 0, this.main.size.w, this.main.size.h),
     };
     if (this.current === null) {
@@ -86,6 +88,7 @@ export default class WorkLog {
 
   applyState(state) {
     this.main.resize(state.sizew, state.sizeh);
+    this.main.baseCtx.putImageData(state.baseData, 0, 0);
     this.main.ctx.putImageData(state.data, 0, 0);
     this.main.adjustSizeFull();
     this.main.select.hide();

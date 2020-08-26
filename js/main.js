@@ -394,7 +394,9 @@ class PainterroProc {
       this.holderEl = document.createElement('div');
       this.holderEl.id = this.holderId;
       this.holderEl.className = 'ptro-holder-wrapper';
-      this.holderEl.style = 'z-index: 100;';
+      // this.holderEl.style = 'z-index: 100;';
+      this.holderEl.style['z-index'] = '100';
+      this.holderEl.style.position = 'absolute';
       document.body.appendChild(this.holderEl);
       this.holderEl.innerHTML = `<div id='${this.id}' class="ptro-holder"></div>`;
       this.baseEl = document.getElementById(this.id);
@@ -431,9 +433,9 @@ class PainterroProc {
     this.wrapper.innerHTML =
       '<div class="ptro-scroller">' +
         '<div class="ptro-center-table" style="position: relative;">' +
-          '<div class="ptro-center-tablecell" style="position: relative;">' +
-            `<canvas id="${this.id}-base-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto;"></canvas>` +
-            `<canvas id="${this.id}-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; margin: auto;"></canvas>` +
+          '<div class="ptro-center-tablecell" style="display: flex; align-items: center; justify-content: center;">' +
+            `<canvas id="${this.id}-base-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; margin: auto;"></canvas>` +
+            `<canvas id="${this.id}-canvas" style="position: absolute; top: 0; bottom: 0; left: 0; right: 0; width: 100%; height: 100%; margin: auto;"></canvas>` +
             `<div class="ptro-substrate"></div>${cropper}` +
           '</div>' +
         '</div>' +
