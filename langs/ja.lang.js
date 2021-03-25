@@ -13,7 +13,7 @@ export default {
   eraserWidthFull: '消しゴムの幅',
   textColor: '色',
   textColorFull: 'テキストの色',
-  fontSize: '級',
+  fontSize: 'サイズ',
   fontSizeFull: 'フォントサイズ',
   fontStrokeSize: '幅',
   fontStrokeSizeFull: 'ストロークの幅',

@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import { KEYS, checkIn } from './utils';
 import { tr } from './translation';
 
@@ -35,16 +35,19 @@ export default class TextTool {
 
   static getFonts() {
     const fonts = [
-      'Arial, Helvetica, sans-serif',
-      '"Arial Black", Gadget, sans-serif',
-      '"Comic Sans MS", cursive, sans-serif',
-      'Impact, Charcoal, sans-serif',
-      '"Lucida Sans Unicode", "Lucida Grande", sans-serif',
-      'Tahoma, Geneva, sans-serif',
-      '"Trebuchet MS", Helvetica, sans-serif',
-      'Verdana, Geneva, sans-serif',
-      '"Courier New", Courier, monospace',
-      '"Lucida Console", Monaco, monospace',
+      '"Meiryo UI", "Helvetica Neue", Arial, sans-serif',
+      '"MS Pゴシック", "MS PGothic", sans-serif',
+      '"MS P明朝", "MS PMincho", serif',
+      // 'Arial, Helvetica, sans-serif',
+      // '"Arial Black", Gadget, sans-serif',
+      // '"Comic Sans MS", cursive, sans-serif',
+      // 'Impact, Charcoal, sans-serif',
+      // '"Lucida Sans Unicode", "Lucida Grande", sans-serif',
+      // 'Tahoma, Geneva, sans-serif',
+      // '"Trebuchet MS", Helvetica, sans-serif',
+      // 'Verdana, Geneva, sans-serif',
+      // '"Courier New", Courier, monospace',
+      // '"Lucida Console", Monaco, monospace',
     ];
 
     const res = [];
@@ -63,24 +66,24 @@ export default class TextTool {
     return [
       {
         value: 'normal',
-        name: 'N',
+        name: 'ノーマル',
         title: 'Normal',
       },
       {
         value: 'bold',
-        name: 'B',
+        name: '太字',
         extraStyle: 'font-weight: bold',
         title: 'Bold',
       },
       {
         value: 'italic',
-        name: 'I',
+        name: 'イタリック',
         extraStyle: 'font-style: italic',
         title: 'Italic',
       },
       {
         value: 'italic bold',
-        name: 'BI',
+        name: '太イタリック',
         extraStyle: 'font-weight: bold; font-style: italic',
         title: 'Bold + Italic',
       },
@@ -220,14 +223,61 @@ export default class TextTool {
     }
   }
 
+  // eslint-disable-next-line class-methods-use-this
+  txt2canvas(text, options) {
+    // console.warn(`txt2canvas: ${text} ${JSON.stringify(options)}`);
+    const { scale, font, fontSize, fontStyle, fontColor } = options;
+    const txcanvas = document.createElement('canvas');
+    const txctx = txcanvas.getContext('2d');
+
+    return new Promise((resolve) => {
+      const lines = text.trim().split('\n');
+      let maxWidth = 0;
+      lines.forEach((element) => {
+        txctx.scale(scale, scale);
+        txctx.font = `${fontStyle} ${fontSize}px ${font}`;
+        txctx.fillStyle = fontColor;
+        const metrics = txctx.measureText(element);
+        const width = metrics.width;
+        if (width > maxWidth) {
+          maxWidth = width;
+        }
+      });
+      maxWidth *= 1.1;
+      const h = parseInt(fontSize, 10);
+      const fheight = h * lines.length;
+      const height = fheight + (fheight * 0.7);
+      txcanvas.width = Math.ceil(maxWidth * scale);
+      txcanvas.height = Math.ceil(height * scale);
+      txcanvas.style.width = `${maxWidth}px`;
+      txcanvas.style.height = `${height}px`;
+      // console.warn(txcanvas);
+      // eslint-disable-next-line max-len
+      // console.warn(`txt2canvas: canvas w:${txcanvas.width} x h:${txcanvas.height} style=w:${txcanvas.style.width} x h:${txcanvas.style.height}`);
+
+      txctx.scale(scale, scale);
+      let y = (h * 0.05);
+      lines.forEach((element) => {
+        txctx.font = `${fontStyle} ${fontSize}px ${font}`;
+        txctx.fillStyle = fontColor;
+        txctx.fillText(element, 0, y += (h * 1.05));
+      });
+      // console.warn('txt2canvas: done');
+      // console.warn(txcanvas.toDataURL('image/png'));
+      resolve(txcanvas);
+    });
+  }
+
   apply() {
     const origBorder = this.input.style.border;
     const scale = this.main.getScale();
     this.input.style.border = 'none';
-    html2canvas(this.input, {
-      backgroundColor: null,
-      logging: false,
-      scale: 1.0 * scale,
+    this.txt2canvas(this.input.innerText, {
+      scale,
+      font: this.font,
+      fontSize: this.fontSize,
+      fontStyle: this.fontStyle,
+      fontColor: this.color,
     }).then((can) => {
       this.ctx.drawImage(can, this.scaledCord[0], this.scaledCord[1]);
       this.input.style.border = origBorder;
@@ -235,6 +285,23 @@ export default class TextTool {
       this.main.worklog.captureState();
       this.main.closeActiveTool();
     });
+
+    /*
+    html2canvas(this.input, {
+      backgroundColor: null,
+      logging: false,
+      scale: 1.0 * scale,
+    }).then((can) => {
+      console.warn('textinput: html2canvas done');
+      this.ctx.drawImage(can, this.scaledCord[0], this.scaledCord[1]);
+      this.input.style.border = origBorder;
+      this.close();
+      this.main.worklog.captureState();
+      this.main.closeActiveTool();
+    }).catch((error) => {
+      console.warn('oops, something went wrong!', error);
+    });
+    */
   }
 
   close() {

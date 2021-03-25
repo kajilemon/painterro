@@ -1,5 +1,5 @@
 import isMobile from 'ismobilejs';
-import html2canvas from 'html2canvas';
+// import html2canvas from 'html2canvas';
 import '../css/styles.css';
 import '../css/bar-styles.css';
 import '../css/icons/ptroiconfont.css';
@@ -1111,12 +1111,14 @@ class PainterroProc {
     this.syncToolElement();
     this.adjustSizeFull();
 
+    /*
     if (this.params.initText && this.worklog.empty) {
       this.ctx.lineWidth = 3;
       this.ctx.strokeStyle = '#fff';
       const div = document.createElement('div');
       this.scroller.appendChild(div);
-      div.innerHTML = '<div style="position:absolute;top:50%;width:100%;transform: translateY(-50%);">' +
+      div.innerHTML =
+        '<div style="position:absolute;top:50%;width:100%;transform: translateY(-50%);">' +
         `${this.params.initText}</div>`;
       div.style.left = '0';
       div.style.top = '0';
@@ -1128,16 +1130,24 @@ class PainterroProc {
       div.style['font-family'] = this.params.initTextStyle.split(/ (.+)/)[1];
       div.style['font-size'] = this.params.initTextStyle.split(/ (.+)/)[0];
 
-      html2canvas(div, {
-        backgroundColor: null,
-        logging: false,
-        scale: 1,
-      }).then((can) => {
+      this.textTool.txt2canvas(
+        1,
+        this.params.initTextStyle.split(/ (.+)/)[1],
+        this.params.initTextStyle.split(/ (.+)/)[0],
+        'normal',
+        this.params.initTextColor,
+        this.params.initText).then((can) => {
+      // html2canvas(div, {
+      //  backgroundColor: null,
+      //  logging: false,
+      //  scale: 1,
+      // }).then((can) => {
         this.scroller.removeChild(div);
         this.ctx.drawImage(can, 0, 0);
         this.baseCtx.drawImage(can, 0, 0);
       });
     }
+    */
   }
 
   clearBackground() {
@@ -1179,7 +1189,7 @@ class PainterroProc {
             ` value='${o.value}' ${o.title ? `title='${o.title}'` : ''}>${o.name}</option>`;
         });
         ctrls += `<select id=${ctl.id} class="ptro-input" ` +
-          `data-id='${ctl.target}'>${options}</select>`;
+          `data-id='${ctl.target}' style="width: 120px">${options}</select>`;
       }
     });
     this.toolControls.innerHTML = ctrls;

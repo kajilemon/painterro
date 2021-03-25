@@ -54,9 +54,9 @@ export function setDefaults(parameters) {
     params.activeFillColorAlpha, 0.0);
   params.activeFillAlphaColor = HexToRGBA(params.activeFillColor, params.activeFillColorAlpha);
 
-  params.initText = params.initText || null;
-  params.initTextColor = params.initTextColor || '#808080';
-  params.initTextStyle = params.initTextStyle || '26px \'Open Sans\', sans-serif';
+  // params.initText = params.initText || null;
+  // params.initTextColor = params.initTextColor || '#808080';
+  // params.initTextStyle = params.initTextStyle || '26px \'Open Sans\', sans-serif';
   params.defaultLineWidth = settings.defaultLineWidth || params.defaultLineWidth || 5;
   params.defaultArrowAngle = params.defaultArrowAngle || 30;
   params.defaultArrowLength = settings.defaultArrowLength || params.defaultArrowLength || 15;
